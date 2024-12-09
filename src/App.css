@@ -1,0 +1,21 @@
+.App {
+  text-align: center;
+  font-family: Arial, sans-serif;
+}
+
+button {
+  margin: 5px;
+  padding: 10px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+pre {
+  font-size: 20px;
+  font-family: 'Courier New', Courier, monospace;
+}
