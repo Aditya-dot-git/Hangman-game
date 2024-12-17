@@ -1,0 +1,7 @@
+[
+    {
+      "name": "hangman-app",
+      "imageUri": "891377367684.dkr.ecr.ap-south-1.amazonaws.com/hangman-app:latest"
+    }
+  ]
+  
