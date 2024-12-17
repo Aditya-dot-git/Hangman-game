@@ -4,8 +4,8 @@ FROM 891377367684.dkr.ecr.ap-south-1.amazonaws.com/nodev23.3.0alpine as build
 # Set the working directory for the build phase
 WORKDIR /app
 
-# Set the NODE_PATH environment variable
-RUN export NODE_PATH=/app/node_modules/.bin:$PATH
+# Set the NODE_PATH environment variable in a persistent way
+ENV NODE_PATH=/app/node_modules/.bin:$PATH
 
 # Copy package.json and install dependencies
 COPY package.json ./
