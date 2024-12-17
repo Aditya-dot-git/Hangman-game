@@ -3,15 +3,18 @@ version: 0.2
 phases:
   pre_build:
     commands:
+      - echo Build started on `date`
+      - echo Checking directory contents:
+      - ls -al
       - echo Logging in to Amazon ECR...
       - aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 891377367684.dkr.ecr.ap-south-1.amazonaws.com
-      - echo Build started on `date`
+
   build:
     commands:
       - echo Building the Docker image...
-      - docker build -t hangman-app ./DockerFile
-      - echo Tagging the Docker image...
+      - docker build -t hangman-app .
       - docker tag hangman-app:latest 891377367684.dkr.ecr.ap-south-1.amazonaws.com/hangman-app:latest
+
   post_build:
     commands:
       - echo Pushing the Docker image to Amazon ECR...
