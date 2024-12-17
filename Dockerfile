@@ -1,30 +1,29 @@
-# Build stage: Using official Node.js v23.3.0 Alpine image from Docker Hub
-FROM node:18-alpine as build
+# Step 1: Build the ReactJS project
+FROM node:18-alpine AS build
 
-# Set the working directory for the build phase
+# Set the working directory in the container
 WORKDIR /app
 
-# Set the NODE_PATH environment variable in a persistent way
-ENV NODE_PATH=/app/node_modules/.bin:$PATH
+# Copy package.json and package-lock.json (if available)
+COPY package.json package-lock.json ./
 
-# Copy package.json and install dependencies
-COPY package.json ./
-RUN npm install --force
+# Install dependencies
+RUN npm install
 
-# Copy the rest of the application code
-COPY . ./
+# Copy the rest of the project files
+COPY . .
 
-# Run build command (without ENV_NAME)
+# Build the React app for production
 RUN npm run build
 
-# Production stage: Using official NGINX Alpine image
-FROM nginx:stable-alpine
+# Step 2: Serve the ReactJS build using a static file server
+FROM nginx:alpine
 
-# Copy the build output from the build stage to NGINX's HTML folder
+# Copy the build files from the build stage to the Nginx public directory
 COPY --from=build /app/build /usr/share/nginx/html
 
-# Expose port 80 for NGINX
+# Expose port 80 for the app
 EXPOSE 80
 
-# Run NGINX in the foreground
+# Start the Nginx server (default behavior)
 CMD ["nginx", "-g", "daemon off;"]
