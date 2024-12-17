@@ -1,5 +1,5 @@
-# Build stage: Using Node.js v23.3.0 from your provided ECR URI
-FROM 891377367684.dkr.ecr.ap-south-1.amazonaws.com/nodev23.3.0alpine as build
+# Build stage: Using official Node.js v23.3.0 Alpine image from Docker Hub
+FROM node:23.3.0-alpine as build
 
 # Set the working directory for the build phase
 WORKDIR /app
