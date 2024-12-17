@@ -1,33 +1,33 @@
-# Stage 1: Build the application using a Node.js image from ECR
-FROM 891377367684.dkr.ecr.ap-south-1.amazonaws.com/node:18 AS build
+# Build stage: Using Node.js v23.3.0 from your provided ECR URI
+FROM 891377367684.dkr.ecr.ap-south-1.amazonaws.com/nodev23.3.0alpine as build
 
-# Set working directory
+# Set the working directory for the build phase
 WORKDIR /app
 
+# Set the NODE_PATH environment variable
+RUN export NODE_PATH=/app/node_modules/.bin:$PATH
+
 # Copy package.json and install dependencies
-COPY package*.json ./
-RUN npm install --production
+COPY package.json ./
+RUN npm install --force
 
-# Copy application source code
-COPY . .
+# Copy the rest of the application code
+COPY . ./
 
-# Build the application (useful for React, Angular, etc.)
+# Run build command (without ENV_NAME)
 RUN npm run build
 
-# Stage 2: Use Nginx for serving the application
-FROM nginx:1.21-alpine
+# Production stage: Using NGINX stable Alpine from your provided ECR URI
+FROM 891377367684.dkr.ecr.ap-south-1.amazonaws.com/nginxstablealpine
 
-# Set working directory for Nginx
-WORKDIR /usr/share/nginx/html
+# Copy the build output from the build stage to NGINX's HTML folder
+COPY --from=build /app/build /usr/share/nginx/html
 
-# Clean the default Nginx content
-RUN rm -rf ./*
+# Copy the custom nginx configuration file (ensure the file exists in your project)
+COPY scripts/nginx.conf /etc/nginx/conf.d/default.conf
 
-# Copy built application from the previous stage
-COPY --from=build /app/build ./
-
-# Expose the Nginx default port
+# Expose port 80 for NGINX
 EXPOSE 80
 
-# Start Nginx
+# Run NGINX in the foreground
 CMD ["nginx", "-g", "daemon off;"]
