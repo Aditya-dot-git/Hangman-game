@@ -1,35 +1,23 @@
 version: 0.2
 
 phases:
-  install:
-    commands:
-      - echo Clearing npm cache...
-      - npm cache clean --force
-      - echo Removing node_modules and package-lock.json...
-      - rm -rf node_modules package-lock.json
-      - echo Installing dependencies...
-      - npm install || { echo 'npm install failed'; exit 1; }  # Exit if npm install fails
-
   pre_build:
     commands:
-      - echo Logging into Amazon ECR...
+      - echo Logging in to Amazon ECR...
       - aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 891377367684.dkr.ecr.ap-south-1.amazonaws.com
-
+      - echo Build started on `date`
   build:
     commands:
       - echo Building the Docker image...
-      - docker build -t hangman-app ./Dockerfile || { echo 'Docker build failed'; exit 1; }  # Exit if Docker build fails
-
+      - docker build -t hangman-app .
+      - echo Tagging the Docker image...
+      - docker tag hangman-app:latest 891377367684.dkr.ecr.ap-south-1.amazonaws.com/hangman-app:latest
   post_build:
     commands:
       - echo Pushing the Docker image to Amazon ECR...
-      - docker tag hangman-app:latest 891377367684.dkr.ecr.ap-south-1.amazonaws.com/hangman-app:latest
-      - docker push 891377367684.dkr.ecr.ap-south-1.amazonaws.com/hangman-app:latest || { echo 'Docker push failed'; exit 1; }  # Exit if Docker push fails
-
+      - docker push 891377367684.dkr.ecr.ap-south-1.amazonaws.com/hangman-app:latest
+      - echo Writing image definitions file...
+      - printf '[{"name":"hangman-app","imageUri":"%s"}]' 891377367684.dkr.ecr.ap-south-1.amazonaws.com/hangman-app:latest > imagedefinitions.json
 artifacts:
   files:
     - imagedefinitions.json
-
-cache:
-  paths:
-    - node_modules/**  # Cache node_modules to speed up subsequent builds
