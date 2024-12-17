@@ -6,7 +6,7 @@ phases:
       - echo Clearing npm cache...
       - npm cache clean --force
       - echo Installing dependencies...
-      - npm install
+      - npm install || { echo 'npm install failed'; exit 1; }  # Exit if npm install fails
 
   pre_build:
     commands:
@@ -16,14 +16,18 @@ phases:
   build:
     commands:
       - echo Building the Docker image...
-      - docker build -t hangman-app ./Dockerfile
+      - docker build -t hangman-app ./Dockerfile || { echo 'Docker build failed'; exit 1; }  # Exit if Docker build fails
 
   post_build:
     commands:
       - echo Pushing the Docker image to Amazon ECR...
       - docker tag hangman-app:latest 891377367684.dkr.ecr.ap-south-1.amazonaws.com/hangman-app:latest
-      - docker push 891377367684.dkr.ecr.ap-south-1.amazonaws.com/hangman-app:latest
+      - docker push 891377367684.dkr.ecr.ap-south-1.amazonaws.com/hangman-app:latest || { echo 'Docker push failed'; exit 1; }  # Exit if Docker push fails
 
 artifacts:
   files:
     - imagedefinitions.json
+
+cache:
+  paths:
+    - node_modules/**  # Cache node_modules to speed up subsequent builds
