@@ -1,26 +1,29 @@
 version: 0.2
 
 phases:
+  install:
+    runtime-versions:
+      nodejs: 18
+    commands:
+      - echo Installing dependencies...
+      - npm install
+
   pre_build:
     commands:
-      - echo Build started on `date`
-      - echo Checking directory contents:
-      - ls -al
-      - echo Logging in to Amazon ECR...
+      - echo Logging into Amazon ECR...
       - aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 891377367684.dkr.ecr.ap-south-1.amazonaws.com
 
   build:
     commands:
       - echo Building the Docker image...
-      - docker build -t hangman-app .
-      - docker tag hangman-app:latest 891377367684.dkr.ecr.ap-south-1.amazonaws.com/hangman-app:latest
+      - docker build -t hangman-app ./Dockerfile
 
   post_build:
     commands:
       - echo Pushing the Docker image to Amazon ECR...
+      - docker tag hangman-app:latest 891377367684.dkr.ecr.ap-south-1.amazonaws.com/hangman-app:latest
       - docker push 891377367684.dkr.ecr.ap-south-1.amazonaws.com/hangman-app:latest
-      - echo Writing image definitions file...
-      - printf '[{"name":"hangman-app","imageUri":"%s"}]' 891377367684.dkr.ecr.ap-south-1.amazonaws.com/hangman-app:latest > imagedefinitions.json
+
 artifacts:
   files:
     - imagedefinitions.json
