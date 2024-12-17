@@ -1,5 +1,5 @@
 # Build stage: Using official Node.js v23.3.0 Alpine image from Docker Hub
-FROM node:23.3.0-alpine as build
+FROM node:18-alpine as build
 
 # Set the working directory for the build phase
 WORKDIR /app
