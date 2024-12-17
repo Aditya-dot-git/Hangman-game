@@ -17,8 +17,8 @@ COPY . ./
 # Run build command (without ENV_NAME)
 RUN npm run build
 
-# Production stage: Using NGINX stable Alpine from your provided ECR URI
-FROM 891377367684.dkr.ecr.ap-south-1.amazonaws.com/nginxstablealpine
+# Production stage: Using official NGINX Alpine image
+FROM nginx:stable-alpine
 
 # Copy the build output from the build stage to NGINX's HTML folder
 COPY --from=build /app/build /usr/share/nginx/html
